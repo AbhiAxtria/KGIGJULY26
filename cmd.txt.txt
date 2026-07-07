@@ -1,0 +1,1 @@
+python load_cypher.py out.cypher --uri bolt://localhost:7687 --user neo4j --password password 
