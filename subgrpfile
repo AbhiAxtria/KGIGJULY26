@@ -14,3 +14,9 @@ MATCH (seed)-[:CALLS|EXECUTES|HAS_BLOCK|CONTAINS|DECLARES|HANDLES|READS|WRITES|
               DEPENDS_ON|BELONGS_TO|DB_OPERATION|ASSESSED_AS|USES_CONSTRUCT|MAPS_TO*0..8]->(n)
 SET n:InScope;
 
+MATCH (n:InScope)
+RETURN labels(n) AS type, count(*) AS count
+ORDER BY count DESC;
+
+MATCH (a:InScope)-[r]->(b:InScope)
+RETURN a, r, b;
