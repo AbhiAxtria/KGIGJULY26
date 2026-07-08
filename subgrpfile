@@ -20,3 +20,39 @@ ORDER BY count DESC;
 
 MATCH (a:InScope)-[r]->(b:InScope)
 RETURN a, r, b;
+
+
+decision verdict
+
+MATCH (r)-[:ASSESSED_AS]->(a:MigrationAssessment)
+RETURN a.decision            AS verdict,
+       labels(r)[0]          AS object_type,
+       coalesce(r.qualified, r.name) AS object_name,
+       a.confidence          AS confidence,
+       a.logic_pattern       AS logic_pattern
+ORDER BY verdict, object_type, object_name;
+
+MATCH ()-[:ASSESSED_AS]->(a:MigrationAssessment)
+RETURN a.decision AS verdict, count(*) AS objects
+ORDER BY objects DESC;
+
+// the clean conversions
+MATCH (r)-[:ASSESSED_AS]->(a:MigrationAssessment {decision:'CONVERT_TO_PYSPARK'})
+RETURN coalesce(r.qualified, r.name) AS object, labels(r)[0] AS type, a.confidence
+ORDER BY object;
+
+// the ones needing a rewrite
+MATCH (r)-[:ASSESSED_AS]->(a:MigrationAssessment {decision:'REWRITE_FOR_PYSPARK'})
+RETURN coalesce(r.qualified, r.name) AS object, labels(r)[0] AS type, a.confidence
+ORDER BY object;
+
+
+MATCH (r)-[:ASSESSED_AS]->(a:MigrationAssessment)
+OPTIONAL MATCH (r)-[:HAS_BLOCK]->(:Block)-[:EXECUTES]->(s:SqlStatement)-[:WRITES]->(w:Table)
+OPTIONAL MATCH (r)-[:HAS_BLOCK]->(:Block)-[:EXECUTES]->(s2:SqlStatement)-[:READS]->(rd:Table)
+RETURN a.decision                       AS verdict,
+       coalesce(r.qualified, r.name)     AS object,
+       a.confidence                      AS confidence,
+       collect(DISTINCT rd.name)         AS reads,
+       collect(DISTINCT w.name)          AS writes
+ORDER BY verdict, object;
