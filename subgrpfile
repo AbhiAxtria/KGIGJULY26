@@ -4,3 +4,13 @@ CALL apoc.path.subgraphAll(seed, {relationshipFilter:'CALLS>|EXECUTES>|HAS_BLOCK
 YIELD nodes, relationships
 CALL apoc.export.cypher.data(nodes, relationships, 'subset.cypher', {format:'plain'})
 YIELD file RETURN file;
+
+
+MATCH (seed:Procedure)
+WHERE seed.name IN ['SingleExtractClose','proc_two','proc_three','proc_four','proc_five',
+                    'proc_six','proc_seven','proc_eight','proc_nine','proc_ten']
+MATCH (seed)-[:CALLS|EXECUTES|HAS_BLOCK|CONTAINS|DECLARES|HANDLES|READS|WRITES|
+              USES_VIEW|USES_SEQUENCE|USES_CURSOR|REFERENCES|REFERS_TO|VIA_DBLINK|
+              DEPENDS_ON|BELONGS_TO|DB_OPERATION|ASSESSED_AS|USES_CONSTRUCT|MAPS_TO*0..8]->(n)
+SET n:InScope;
+
