@@ -1,0 +1,5 @@
+MATCH (a {name: 'A'})-[:CALLS]->(callee)
+WHERE callee:Procedure OR callee:Function
+RETURN a.name AS procedure,
+       count(callee) AS calledCount,
+       collect(callee.name) AS calledProcedures
