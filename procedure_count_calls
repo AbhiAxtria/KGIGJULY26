@@ -1,0 +1,18 @@
+MATCH path = (root {name: 'AR_RUN_EXTRACT'})-[:CALLS*1..15]->(descendant)
+WHERE descendant:Procedure OR descendant:Function
+WITH descendant, min(length(path)) AS depth
+RETURN descendant.name AS procedureName, depth
+ORDER BY depth, procedureName
+
+MATCH (root {name: 'AR_RUN_EXTRACT'})-[:CALLS*1..15]->(descendant)
+WHERE descendant:Procedure OR descendant:Function
+RETURN count(DISTINCT descendant) AS totalNestedProcedureCount
+
+MATCH (root {name: 'AR_RUN_EXTRACT'})
+OPTIONAL MATCH (root)-[:CALLS]->(direct)
+WHERE direct:Procedure OR direct:Function
+OPTIONAL MATCH (root)-[:CALLS*1..15]->(nested)
+WHERE nested:Procedure OR nested:Function
+RETURN root.name AS parentProcedure,
+       count(DISTINCT direct) AS directCallCount,
+       count(DISTINCT nested) AS totalNestedCallCount
