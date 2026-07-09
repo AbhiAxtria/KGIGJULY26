@@ -3,3 +3,11 @@ WHERE callee:Procedure OR callee:Function
 RETURN a.name AS procedure,
        count(callee) AS calledCount,
        collect(callee.name) AS calledProcedures
+
+
+MATCH (a)-[:CALLS]->(callee)
+WHERE toLower(a.name) = toLower('A')
+  AND (callee:Procedure OR callee:Function)
+RETURN a.name AS procedure,
+       count(callee) AS calledCount,
+       collect(callee.name) AS calledProcedures
